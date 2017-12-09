@@ -1,6 +1,6 @@
-package javamultithreading.racecondition;
+package javamultithreading.racecondition.solution;
 
-public class RaceCondition {
+public class OptimisticLocking {
 
     static int counter = 0;
 
@@ -8,11 +8,19 @@ public class RaceCondition {
         Thread fastThread = new Thread(() -> {
             int i = counter;
             sleepFor(1000);
+            if (i != counter) {
+                System.out.println("Illegal state for counter variable. Aborting the action");
+                return;
+            }
             counter = i + 1;
         });
         Thread slowThread = new Thread(() -> {
             int i = counter;
             sleepFor(3000);
+            if (i != counter) {
+                System.out.println("Illegal state for counter variable. Aborting the action");
+                return;
+            }
             counter = i + 1;
         });
 
@@ -22,9 +30,9 @@ public class RaceCondition {
         slowThread.join();
         fastThread.join();
 
-        if (counter != 2) {
-            System.out.println("Race condition has occurred. Counter supposed to be 2, but turned 1 " +
-                    "then threads were ended because slow thread missed update from fast thread");
+        if (counter == 1) {
+            System.out.println("Counter is correctly set to 1 because one of the threads notices that the value was " +
+                    "changed in another thread, thus making the action processing invalid and aborting it");
         }
     }
 
