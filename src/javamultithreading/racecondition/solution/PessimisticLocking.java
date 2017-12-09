@@ -2,8 +2,11 @@ package javamultithreading.racecondition.solution;
 
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
+import java.util.logging.Logger;
 
 public class PessimisticLocking {
+
+    private final static Logger log = Logger.getLogger(PessimisticLocking.class.getName());
 
     static int counter = 0;
     static Lock counterLock = new ReentrantLock();
@@ -31,7 +34,7 @@ public class PessimisticLocking {
         fastThread.join();
 
         if (counter == 2) {
-            System.out.println("Counter is correctly set to 2. One of the threads acquired a lock and kept it until " +
+            log.info("Counter is correctly set to 2. One of the threads acquired a lock and kept it until " +
                     "the action finished. Then another did the same. The result is correct but concurrency is missing");
         }
     }

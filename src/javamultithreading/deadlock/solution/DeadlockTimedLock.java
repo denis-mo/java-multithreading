@@ -1,36 +1,45 @@
 package javamultithreading.deadlock.solution;
 
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
 import java.util.logging.Logger;
 
-public class DeadlockSameOrder {
+public class DeadlockTimedLock {
 
-	private final static Logger LOGGER = Logger.getLogger(DeadlockSameOrder.class.getName());
+	private final static Logger log = Logger.getLogger(DeadlockTimedLock.class.getName());
 
-	static Object lock1 = new Object();
-	static Object lock2 = new Object();
+	static Lock lock1 = new ReentrantLock();
+	static Lock lock2 = new ReentrantLock();
 
 	public static void main(String[] args) {
 		Thread thread = new Thread(() -> {
-			LOGGER.info("Acquiring lock1 from first thread");
-			synchronized(lock1) {
-				sleepFor(1);
-				LOGGER.info("Acquiring lock2 from first thread");
-				synchronized (lock2) {
-					LOGGER.info("First thread enters the synchronized block");
+			log.info("Acquiring lock1 from first thread");
+			lock1.lock();
+			sleepFor(1);
+
+			try {
+				log.info("Trying to acquire lock2 from first thread");
+				if (!lock2.tryLock(2, TimeUnit.SECONDS)){
+					log.info("lock2 acquiring timed out in first thread");
 				}
+			} catch (InterruptedException ignored) {
+			} finally {
+				lock1.unlock();
 			}
+
 		});
 		Thread invertedLockThread = new Thread(() -> {
-			LOGGER.info("Acquiring lock1 from second thread");
-			synchronized (lock1) {
-				sleepFor(1);
-				LOGGER.info("Acquiring lock2 from second thread");
-				synchronized(lock2) {
-					LOGGER.info("Second thread enters the synchronized block");
-				}
-			}
+			log.info("Acquiring lock2 from second thread");
+			lock2.lock();
+			sleepFor(1);
+
+			log.info("Trying to acquire lock1 from second thread");
+			lock1.lock();
+			log.info("lock1 successfully acquired from second thread");
 		});
-		LOGGER.info("Two threads will never enter deadlock state, as locks acquired the same order");
+		log.info("Two threads will enter into deadlock state, however as first thread has timeout for lock acquiring " +
+				"second will eventually proceed with both locks. First thread may try to retry the same action again");
 		thread.start();
 		invertedLockThread.start();
 	}

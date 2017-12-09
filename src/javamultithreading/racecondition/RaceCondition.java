@@ -1,6 +1,10 @@
 package javamultithreading.racecondition;
 
+import java.util.logging.Logger;
+
 public class RaceCondition {
+
+    private final static Logger log = Logger.getLogger(RaceCondition.class.getName());
 
     static int counter = 0;
 
@@ -23,7 +27,7 @@ public class RaceCondition {
         fastThread.join();
 
         if (counter != 2) {
-            System.out.println("Race condition has occurred. Counter supposed to be 2, but turned 1 " +
+            log.info("Race condition has occurred. Counter supposed to be 2, but turned 1 " +
                     "then threads were ended because slow thread missed update from fast thread");
         }
     }

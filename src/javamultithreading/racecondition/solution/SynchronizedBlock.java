@@ -2,8 +2,11 @@ package javamultithreading.racecondition.solution;
 
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
+import java.util.logging.Logger;
 
 public class SynchronizedBlock {
+
+    private final static Logger log = Logger.getLogger(SynchronizedBlock.class.getName());
 
     static int counter = 0;
     static final Object lock = new Object();
@@ -31,7 +34,7 @@ public class SynchronizedBlock {
         fastThread.join();
 
         if (counter == 2) {
-            System.out.println("Counter is correctly set to 2. One of the threads enters the synchronized block with " +
+            log.info("Counter is correctly set to 2. One of the threads enters the synchronized block with " +
                     "public lock being hold and kept this lock until the action finished. Then another thread did the " +
                     "same. The result is correct but concurrency is missing");
         }

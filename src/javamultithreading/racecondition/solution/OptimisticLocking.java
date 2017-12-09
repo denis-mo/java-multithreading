@@ -1,6 +1,10 @@
 package javamultithreading.racecondition.solution;
 
+import java.util.logging.Logger;
+
 public class OptimisticLocking {
+
+    private final static Logger log = Logger.getLogger(OptimisticLocking.class.getName());
 
     static int counter = 0;
 
@@ -9,7 +13,7 @@ public class OptimisticLocking {
             int i = counter;
             sleepFor(1000);
             if (i != counter) {
-                System.out.println("Illegal state for counter variable. Aborting the action");
+                log.info("Illegal state for counter variable. Aborting the action");
                 return;
             }
             counter = i + 1;
@@ -18,7 +22,7 @@ public class OptimisticLocking {
             int i = counter;
             sleepFor(3000);
             if (i != counter) {
-                System.out.println("Illegal state for counter variable. Aborting the action");
+                log.info("Illegal state for counter variable. Aborting the action");
                 return;
             }
             counter = i + 1;
@@ -31,7 +35,7 @@ public class OptimisticLocking {
         fastThread.join();
 
         if (counter == 1) {
-            System.out.println("Counter is correctly set to 1 because one of the threads notices that the value was " +
+            log.info("Counter is correctly set to 1 because one of the threads notices that the value was " +
                     "changed in another thread, thus making the action processing invalid and aborting it");
         }
     }
