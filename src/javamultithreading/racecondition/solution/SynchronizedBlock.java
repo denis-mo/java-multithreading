@@ -3,25 +3,25 @@ package javamultithreading.racecondition.solution;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
-public class PessimisticLocking {
+public class SynchronizedBlock {
 
     static int counter = 0;
-    static Lock counterLock = new ReentrantLock();
+    static final Object lock = new Object();
 
     public static void main(String[] args) throws InterruptedException {
         Thread fastThread = new Thread(() -> {
-            counterLock.lock();
-            int i = counter;
-            sleepFor(1);
-            counter = i + 1;
-            counterLock.unlock();
+            synchronized (lock) {
+                int i = counter;
+                sleepFor(1);
+                counter = i + 1;
+            }
         });
         Thread slowThread = new Thread(() -> {
-            counterLock.lock();
-            int i = counter;
-            sleepFor(3);
-            counter = i + 1;
-            counterLock.unlock();
+            synchronized (lock) {
+                int i = counter;
+                sleepFor(3);
+                counter = i + 1;
+            }
         });
 
         slowThread.start();
@@ -31,8 +31,9 @@ public class PessimisticLocking {
         fastThread.join();
 
         if (counter == 2) {
-            System.out.println("Counter is correctly set to 2. One of the threads acquired a lock and kept it until " +
-                    "the action finished. Then another did the same. The result is correct but concurrency is missing");
+            System.out.println("Counter is correctly set to 2. One of the threads enters the synchronized block with " +
+                    "public lock being hold and kept this lock until the action finished. Then another thread did the " +
+                    "same. The result is correct but concurrency is missing");
         }
     }
 
